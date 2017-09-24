@@ -3,7 +3,7 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import controller.AbsorptionController;
-import controller.overloadController;
+import controller.OverloadController;
 import common.Constant.State;
 
 import java.awt.*;
@@ -11,12 +11,12 @@ import java.awt.*;
 @ScriptManifest(author = "You", info = "My first script", name = "overload eater", version = 0, logo = "")
 public class main extends Script {
 	private boolean prayOpen;
-	overloadController olController;
+	OverloadController olController;
 	AbsorptionController absController;
 
 	@Override
 	public void onStart() {
-		olController = new overloadController();
+		olController = new OverloadController();
 		absController = new AbsorptionController(getWidgets());
 
 		try {

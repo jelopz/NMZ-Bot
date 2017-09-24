@@ -11,7 +11,7 @@ public class OverloadController {
 	private boolean overloadEmpty;
 	private long overloadTimer;
 
-	public overloadController() {
+	public OverloadController() {
 		overloadEmpty = false;
 	}
 
