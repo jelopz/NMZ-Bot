@@ -3,6 +3,7 @@ package controller;
 import org.osbot.rs07.api.Inventory;
 import org.osbot.rs07.api.Mouse;
 import org.osbot.rs07.api.Widgets;
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.script.MethodProvider;
 
@@ -32,7 +33,8 @@ public class AbsorptionController {
 	public boolean isLow() {
 		if (curAbsorp <= absThresh)
 			return true;
-		return false;
+		else
+			return false;
 	}
 
 	public void reupAbsorp(Inventory inv, Mouse m) throws InterruptedException {
@@ -51,14 +53,26 @@ public class AbsorptionController {
 		}
 	}
 
+	public static int searchInventory(String s, Inventory inv) {
+		Item[] items = inv.getItems();
+
+		for (int i = 0; i < items.length; i++) {
+			if (items[i] != null && items[i].getName().equals(s)) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
 	// change while loop to for loop > refer to overloadcontroller
 	private void absorpClicker(int slot, Inventory inv, Mouse m) throws InterruptedException {
 		boolean reUpped = false;
 		boolean chugging = false;
 		long extraTime = 0;
 
-		while (true) {
-			// log("just putting this absorpClicker just incase");
+		for (long currentTime = System.currentTimeMillis(); currentTime < extraTime
+				|| reUpped == false; currentTime = System.currentTimeMillis()) {
 			if (reUpped) {
 				if (System.currentTimeMillis() >= extraTime)
 					break;
