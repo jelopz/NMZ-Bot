@@ -3,6 +3,7 @@ import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
 import controller.overloadController;
+import common.Constant.State;
 
 import java.awt.*;
 
@@ -27,13 +28,9 @@ public class main extends Script {
 		}
 	}
 
-	private enum State {
-		OVERLOAD, IDLE
-	};
-
 	private State getState() {
 		if (checkOverloadTimer() && !olController.isEmpty())
-			return State.OVERLOAD;
+			return State.PREPARE_OVERLOAD;
 		else
 			return State.IDLE;
 	}
@@ -48,7 +45,7 @@ public class main extends Script {
 	@Override
 	public int onLoop() throws InterruptedException {
 		switch (getState()) {
-		case OVERLOAD:
+		case PREPARE_OVERLOAD:
 			if (prayOpen) {
 				prayOpen = false;
 				getTabs().open(Tab.INVENTORY);
@@ -57,6 +54,12 @@ public class main extends Script {
 			break;
 		case IDLE:
 			// doSomething();
+			break;
+		case GUZZLE_ABSORP:
+			break;
+		case PRAYER_FLICKING:
+			break;
+		default:
 			break;
 		}
 		return random(200, 300);
