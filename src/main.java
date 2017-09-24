@@ -9,7 +9,7 @@ import common.Constant.State;
 
 import java.awt.*;
 
-@ScriptManifest(author = "You", info = "My first script", name = "overload eater", version = 0, logo = "")
+@ScriptManifest(author = "You", info = "My first script", name = "nmz-bot", version = 0, logo = "")
 public class main extends Script {
 	private boolean prayOpen, doingSomething;
 	private OverloadController olController;
@@ -71,7 +71,7 @@ public class main extends Script {
 	// cur variable only exists for testing purposes. remove after testing
 	private boolean checkAbsorpLevel() {
 		int cur = absController.updateAbsorptionLevel();
-		log("current Absorption level:  " + cur + "    current Absorp thresh: " + absController.getThresh());
+		log("current Absorption level: " + cur + " current Absorp thresh: " + absController.getThresh());
 		return absController.isLow();
 	}
 

@@ -80,7 +80,7 @@ public class AbsorptionController {
 			if (reUpped) {
 				if (System.currentTimeMillis() >= extraTime)
 					break;
-			} else if (extraTime == 0) {
+			} else if (extraTime == 0 && inv.getItems()[slot] != null) {
 				for (int i = 0; i < Constant.ABSORP_NAMES.length; i++) {
 					if (inv.getItems()[slot].getName().equals(Constant.ABSORP_NAMES[i])) {
 						chugging = true;
@@ -91,6 +91,9 @@ public class AbsorptionController {
 					extraTime = System.currentTimeMillis() + (Util.randomInt(1, 3) * 1000);
 				} else
 					chugging = false;
+			} else if (inv.getItems()[slot] == null) {
+				reUpped = true;
+				extraTime = System.currentTimeMillis() + (Util.randomInt(1, 3) * 1000);
 			}
 			m.click(false);
 			MethodProvider.sleep(Util.randomInt(150, 165));
