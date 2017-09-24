@@ -7,7 +7,7 @@ import org.osbot.rs07.script.MethodProvider;
 import common.Constant;
 import common.Util;
 
-public class overloadController {
+public class OverloadController {
 	private boolean overloadEmpty;
 	private long overloadTimer;
 
