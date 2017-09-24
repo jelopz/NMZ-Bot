@@ -2,6 +2,7 @@ import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
 
+import controller.AbsorptionController;
 import controller.overloadController;
 import common.Constant.State;
 
@@ -11,10 +12,12 @@ import java.awt.*;
 public class main extends Script {
 	private boolean prayOpen;
 	overloadController olController;
+	AbsorptionController absController;
 
 	@Override
 	public void onStart() {
 		olController = new overloadController();
+		absController = new AbsorptionController(getWidgets());
 
 		try {
 			if (prayOpen) {
@@ -22,6 +25,7 @@ public class main extends Script {
 				getTabs().open(Tab.INVENTORY);
 			}
 			olController.reupOverload(getInventory(), getMouse());
+			absController.reupAbsorp(getInventory(), getMouse());
 		} catch (InterruptedException e) {
 			log("uhoh");
 			e.printStackTrace();
@@ -31,6 +35,8 @@ public class main extends Script {
 	private State getState() {
 		if (checkOverloadTimer() && !olController.isEmpty())
 			return State.PREPARE_OVERLOAD;
+		else if (checkAbsorpLevel() && !absController.isEmpty())
+			return State.GUZZLE_ABSORP;
 		else
 			return State.IDLE;
 	}
@@ -40,6 +46,13 @@ public class main extends Script {
 			return true;
 		else
 			return false;
+	}
+
+	// cur variable only exists for testing purposes. remove after testing
+	private boolean checkAbsorpLevel() {
+		int cur = absController.updateAbsorptionLevel();
+		log("current Absorption level:  " + cur);
+		return absController.isLow();
 	}
 
 	@Override
@@ -56,6 +69,11 @@ public class main extends Script {
 			// doSomething();
 			break;
 		case GUZZLE_ABSORP:
+			if (prayOpen) {
+				prayOpen = false;
+				getTabs().open(Tab.INVENTORY);
+			}
+			absController.reupAbsorp(getInventory(), getMouse());
 			break;
 		case PRAYER_FLICKING:
 			break;
