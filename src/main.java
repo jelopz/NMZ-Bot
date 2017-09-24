@@ -41,6 +41,8 @@ public class main extends Script {
 			return State.IDLE;
 	}
 
+	// TODO: remove checkOverloadTimer and checkAbsorpLevel, these methods
+	// should not be in main. For now it's fine.
 	private boolean checkOverloadTimer() {
 		if (System.currentTimeMillis() >= olController.getTimer())
 			return true;
