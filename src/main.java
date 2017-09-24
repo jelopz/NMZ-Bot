@@ -4,6 +4,7 @@ import org.osbot.rs07.script.ScriptManifest;
 
 import controller.AbsorptionController;
 import controller.OverloadController;
+import controller.PrayerController;
 import common.Constant.State;
 
 import java.awt.*;
@@ -13,11 +14,13 @@ public class main extends Script {
 	private boolean prayOpen;
 	OverloadController olController;
 	AbsorptionController absController;
+	PrayerController prayController;
 
 	@Override
 	public void onStart() {
 		olController = new OverloadController();
 		absController = new AbsorptionController(getWidgets());
+		prayController = new PrayerController();
 
 		try {
 			if (prayOpen) {
@@ -26,6 +29,12 @@ public class main extends Script {
 			}
 			olController.reupOverload(getInventory(), getMouse());
 			absController.reupAbsorp(getInventory(), getMouse());
+
+			if (!prayOpen) {
+				prayOpen = true;
+				getPrayer().open();
+			}
+			prayController.prayerFlick(getPrayer());
 		} catch (InterruptedException e) {
 			log("uhoh");
 			e.printStackTrace();
@@ -37,6 +46,8 @@ public class main extends Script {
 			return State.PREPARE_OVERLOAD;
 		else if (checkAbsorpLevel() && !absController.isEmpty())
 			return State.GUZZLE_ABSORP;
+		else if (checkPrayerTimer())
+			return State.PRAYER_FLICKING;
 		else
 			return State.IDLE;
 	}
@@ -55,6 +66,12 @@ public class main extends Script {
 		int cur = absController.updateAbsorptionLevel();
 		log("current Absorption level:  " + cur);
 		return absController.isLow();
+	}
+
+	private boolean checkPrayerTimer() {
+		if (System.currentTimeMillis() >= prayController.getTimer())
+			return true;
+		return false;
 	}
 
 	@Override
@@ -78,6 +95,11 @@ public class main extends Script {
 			absController.reupAbsorp(getInventory(), getMouse());
 			break;
 		case PRAYER_FLICKING:
+			if (!prayOpen) {
+				prayOpen = true;
+				getPrayer().open();
+			}
+			prayController.prayerFlick(getPrayer());
 			break;
 		default:
 			break;
