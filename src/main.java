@@ -11,13 +11,15 @@ import java.awt.*;
 
 @ScriptManifest(author = "You", info = "My first script", name = "overload eater", version = 0, logo = "")
 public class main extends Script {
-	private boolean prayOpen;
-	OverloadController olController;
-	AbsorptionController absController;
-	PrayerController prayController;
+	private boolean prayOpen, doingSomething;
+	private OverloadController olController;
+	private AbsorptionController absController;
+	private PrayerController prayController;
 
 	@Override
 	public void onStart() {
+		doingSomething = false;
+		prayOpen = false;
 		olController = new OverloadController();
 		absController = new AbsorptionController(getWidgets());
 		prayController = new PrayerController();
@@ -42,20 +44,25 @@ public class main extends Script {
 	}
 
 	private State getState() {
-		if (checkOverloadTimer() && !olController.isEmpty())
+		if (!doingSomething && !olController.isEmpty() && checkOverloadTimer()) {
+			doingSomething = true;
 			return State.PREPARE_OVERLOAD;
-		else if (checkAbsorpLevel() && !absController.isEmpty())
+		} else if (!doingSomething && !absController.isEmpty() && checkAbsorpLevel()) {
+			doingSomething = true;
 			return State.GUZZLE_ABSORP;
-		else if (checkPrayerTimer())
+		} else if (!doingSomething && checkPrayerTimer()) {
+			doingSomething = true;
 			return State.PRAYER_FLICKING;
-		else
+		} else
 			return State.IDLE;
 	}
 
 	// TODO: remove checkOverloadTimer and checkAbsorpLevel, these methods
 	// should not be in main. For now it's fine.
 	private boolean checkOverloadTimer() {
-		if (System.currentTimeMillis() >= olController.getTimer())
+		long t = olController.getTimer();
+		log("Time until next overload reup: " + ((t - System.currentTimeMillis()) / 1000));
+		if (System.currentTimeMillis() >= t)
 			return true;
 		else
 			return false;
@@ -64,12 +71,14 @@ public class main extends Script {
 	// cur variable only exists for testing purposes. remove after testing
 	private boolean checkAbsorpLevel() {
 		int cur = absController.updateAbsorptionLevel();
-		log("current Absorption level:  " + cur);
+		log("current Absorption level:  " + cur + "    current Absorp thresh: " + absController.getThresh());
 		return absController.isLow();
 	}
 
 	private boolean checkPrayerTimer() {
-		if (System.currentTimeMillis() >= prayController.getTimer()) {
+		long t = prayController.getTimer();
+		log("Time until next prayer flick: " + ((t - System.currentTimeMillis()) / 1000));
+		if (System.currentTimeMillis() >= t) {
 			prayController.maxOutTimer();
 			return true;
 		}
@@ -85,6 +94,7 @@ public class main extends Script {
 				getTabs().open(Tab.INVENTORY);
 			}
 			olController.reupOverload(getInventory(), getMouse());
+			doingSomething = false;
 			break;
 		case IDLE:
 			// doSomething();
@@ -95,6 +105,7 @@ public class main extends Script {
 				getTabs().open(Tab.INVENTORY);
 			}
 			absController.reupAbsorp(getInventory(), getMouse());
+			doingSomething = false;
 			break;
 		case PRAYER_FLICKING:
 			if (!prayOpen) {
@@ -102,6 +113,7 @@ public class main extends Script {
 				getPrayer().open();
 			}
 			prayController.prayerFlick(getPrayer(), getMouse());
+			doingSomething = false;
 			break;
 		default:
 			break;

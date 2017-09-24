@@ -25,6 +25,10 @@ public class AbsorptionController {
 		return absorpEmpty;
 	}
 
+	public int getThresh() {
+		return absThresh;
+	}
+
 	public int updateAbsorptionLevel() {
 		curAbsorp = Integer.parseInt(absorpWidget.getMessage());
 		return curAbsorp;
