@@ -34,7 +34,7 @@ public class main extends Script {
 				prayOpen = true;
 				getPrayer().open();
 			}
-			prayController.prayerFlick(getPrayer());
+			prayController.prayerFlick(getPrayer(), getMouse());
 		} catch (InterruptedException e) {
 			log("uhoh");
 			e.printStackTrace();
@@ -69,8 +69,10 @@ public class main extends Script {
 	}
 
 	private boolean checkPrayerTimer() {
-		if (System.currentTimeMillis() >= prayController.getTimer())
+		if (System.currentTimeMillis() >= prayController.getTimer()) {
+			prayController.maxOutTimer();
 			return true;
+		}
 		return false;
 	}
 
@@ -99,7 +101,7 @@ public class main extends Script {
 				prayOpen = true;
 				getPrayer().open();
 			}
-			prayController.prayerFlick(getPrayer());
+			prayController.prayerFlick(getPrayer(), getMouse());
 			break;
 		default:
 			break;
