@@ -6,7 +6,9 @@ import org.osbot.rs07.script.ScriptManifest;
 import controller.AbsorptionController;
 import controller.OverloadController;
 import controller.PrayerController;
+import common.Constant;
 import common.Constant.State;
+import common.Util;
 
 import java.awt.*;
 
@@ -18,12 +20,17 @@ public class main extends Script {
 	private OverloadController olController;
 	private AbsorptionController absController;
 	private PrayerController prayController;
+	
+	private int rockcakeCount;
 
 	@Override
 	public void onStart() {
 		running = true;
 		busy = false;
 		prayOpen = false;
+		
+		rockcakeCount = 0;
+		
 		olController = new OverloadController();
 		absController = new AbsorptionController(getWidgets());
 		prayController = new PrayerController();
@@ -48,7 +55,9 @@ public class main extends Script {
 				return State.GUZZLE_ABSORP;
 			else if (checkPrayerTimer())
 				return State.PRAYER_FLICKING;
-			else if (isFullHealth()) {
+			else if (is2HP()) {
+				return State.GUZZLE_ROCKCAKE;
+			} else if (isFullHealth()) {
 				running = false;
 				return State.IDLE;
 			} else
@@ -91,6 +100,22 @@ public class main extends Script {
 		return false;
 	}
 
+	private boolean is2HP() {
+		log("rockcakeCount:  " + rockcakeCount);
+		if (getSkills().getDynamic(Skill.HITPOINTS) == 2)
+			return true;
+		return false;
+	}
+
+	private void guzzleRockcake() {
+		prepareTab(true);
+		int slot = Util.searchInventory(Constant.ROCKCAKE, getInventory());
+		if (slot != -1) {
+			// guzzle rock cake
+			getInventory().interact(slot, "Guzzle");
+		}
+	}
+
 	// if parameter == true, open inventory, else open prayer
 	private void prepareTab(boolean s) {
 		if (s) {
@@ -128,6 +153,11 @@ public class main extends Script {
 		case PRAYER_FLICKING:
 			prepareTab(false);
 			prayController.prayerFlick(getPrayer(), getMouse());
+			break;
+		case GUZZLE_ROCKCAKE:
+			prepareTab(true);
+			rockcakeCount++;
+			guzzleRockcake();
 			break;
 		default:
 			break;
