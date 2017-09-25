@@ -12,8 +12,6 @@ Run script
 # TODO:
 Rockcake down to 1 hp if we are out of overload potions
 
-Log off when dream is over
+Create GUI for showing statistics
 
 Automate the setup once player is inside NMZ
-
-Automate getting inside the NMZ
