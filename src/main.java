@@ -1,3 +1,4 @@
+import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.script.ScriptManifest;
@@ -11,31 +12,27 @@ import java.awt.*;
 
 @ScriptManifest(author = "You", info = "My first script", name = "nmz-bot", version = 0, logo = "")
 public class main extends Script {
-	private boolean prayOpen, doingSomething;
+	private boolean running;
+	private boolean prayOpen, busy;
+	private State curState;
 	private OverloadController olController;
 	private AbsorptionController absController;
 	private PrayerController prayController;
 
 	@Override
 	public void onStart() {
-		doingSomething = false;
+		running = true;
+		busy = false;
 		prayOpen = false;
 		olController = new OverloadController();
 		absController = new AbsorptionController(getWidgets());
 		prayController = new PrayerController();
 
 		try {
-			if (prayOpen) {
-				prayOpen = false;
-				getTabs().open(Tab.INVENTORY);
-			}
+			prepareTab(true);
 			olController.reupOverload(getInventory(), getMouse());
 			absController.reupAbsorp(getInventory(), getMouse());
-
-			if (!prayOpen) {
-				prayOpen = true;
-				getPrayer().open();
-			}
+			prepareTab(false);
 			prayController.prayerFlick(getPrayer(), getMouse());
 		} catch (InterruptedException e) {
 			log("uhoh");
@@ -44,15 +41,18 @@ public class main extends Script {
 	}
 
 	private State getState() {
-		if (!doingSomething && !olController.isEmpty() && checkOverloadTimer()) {
-			doingSomething = true;
-			return State.PREPARE_OVERLOAD;
-		} else if (!doingSomething && !absController.isEmpty() && checkAbsorpLevel()) {
-			doingSomething = true;
-			return State.GUZZLE_ABSORP;
-		} else if (!doingSomething && checkPrayerTimer()) {
-			doingSomething = true;
-			return State.PRAYER_FLICKING;
+		if (running && !busy) {
+			if (!olController.isEmpty() && checkOverloadTimer())
+				return State.PREPARE_OVERLOAD;
+			else if (!absController.isEmpty() && checkAbsorpLevel())
+				return State.GUZZLE_ABSORP;
+			else if (checkPrayerTimer())
+				return State.PRAYER_FLICKING;
+			else if (isFullHealth()) {
+				running = false;
+				return State.IDLE;
+			} else
+				return State.IDLE;
 		} else
 			return State.IDLE;
 	}
@@ -85,39 +85,55 @@ public class main extends Script {
 		return false;
 	}
 
-	@Override
-	public int onLoop() throws InterruptedException {
-		switch (getState()) {
-		case PREPARE_OVERLOAD:
+	private boolean isFullHealth() {
+		if (getSkills().getDynamic(Skill.HITPOINTS) == getSkills().getStatic(Skill.HITPOINTS))
+			return true;
+		return false;
+	}
+
+	// if parameter == true, open inventory, else open prayer
+	private void prepareTab(boolean s) {
+		if (s) {
 			if (prayOpen) {
 				prayOpen = false;
 				getTabs().open(Tab.INVENTORY);
 			}
+		} else {
+			if (!prayOpen) {
+				prayOpen = true;
+				getPrayer().open();
+			}
+		}
+	}
+
+	@Override
+	public int onLoop() throws InterruptedException {
+		curState = getState();
+
+		if (!curState.equals(State.IDLE))
+			busy = true;
+
+		switch (curState) {
+		case PREPARE_OVERLOAD:
+			prepareTab(true);
 			olController.reupOverload(getInventory(), getMouse());
-			doingSomething = false;
 			break;
 		case IDLE:
 			// doSomething();
 			break;
 		case GUZZLE_ABSORP:
-			if (prayOpen) {
-				prayOpen = false;
-				getTabs().open(Tab.INVENTORY);
-			}
+			prepareTab(true);
 			absController.reupAbsorp(getInventory(), getMouse());
-			doingSomething = false;
 			break;
 		case PRAYER_FLICKING:
-			if (!prayOpen) {
-				prayOpen = true;
-				getPrayer().open();
-			}
+			prepareTab(false);
 			prayController.prayerFlick(getPrayer(), getMouse());
-			doingSomething = false;
 			break;
 		default:
 			break;
 		}
+
+		busy = false;
 		return random(200, 300);
 	}
 
