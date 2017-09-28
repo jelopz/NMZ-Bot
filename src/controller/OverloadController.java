@@ -58,8 +58,12 @@ public class OverloadController {
 		boolean reUpped = false;
 		long extraTime = 0;
 
-		for (long currentTime = System.currentTimeMillis(); currentTime < extraTime
-				|| reUpped == false; currentTime = System.currentTimeMillis()) {
+		// if we're trying to click for 20-25 seconds, stop because something
+		// likely went wrong
+		long allowedTime = System.currentTimeMillis() + (Util.randomInt(20, 25) * 1000);
+
+		for (long currentTime = System.currentTimeMillis(); (currentTime < extraTime || reUpped == false)
+				&& currentTime < allowedTime; currentTime = System.currentTimeMillis()) {
 			if (reUpped) {
 			} else if (inv.getItems()[slot] != null
 					&& !inv.getItems()[slot].getName().equals(Constant.OVERLOAD_NAMES[i])) {

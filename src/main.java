@@ -20,7 +20,7 @@ public class main extends Script {
 	private OverloadController olController;
 	private AbsorptionController absController;
 	private PrayerController prayController;
-	
+
 	private int rockcakeCount;
 
 	@Override
@@ -28,9 +28,9 @@ public class main extends Script {
 		running = true;
 		busy = false;
 		prayOpen = false;
-		
+
 		rockcakeCount = 0;
-		
+
 		olController = new OverloadController();
 		absController = new AbsorptionController(getWidgets());
 		prayController = new PrayerController();
@@ -49,6 +49,10 @@ public class main extends Script {
 
 	private State getState() {
 		if (running && !busy) {
+			if (isFullHealth()) {
+				running = false;
+				return State.IDLE;
+			}
 			if (!olController.isEmpty() && checkOverloadTimer())
 				return State.PREPARE_OVERLOAD;
 			else if (!absController.isEmpty() && checkAbsorpLevel())
@@ -57,9 +61,6 @@ public class main extends Script {
 				return State.PRAYER_FLICKING;
 			else if (is2HP()) {
 				return State.GUZZLE_ROCKCAKE;
-			} else if (isFullHealth()) {
-				running = false;
-				return State.IDLE;
 			} else
 				return State.IDLE;
 		} else
@@ -145,6 +146,10 @@ public class main extends Script {
 			break;
 		case IDLE:
 			// doSomething();
+			if (!running) {
+				sleep(random(2000, 4000));
+				stop();
+			}
 			break;
 		case GUZZLE_ABSORP:
 			prepareTab(true);
