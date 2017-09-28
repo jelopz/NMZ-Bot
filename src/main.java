@@ -12,7 +12,7 @@ import common.Util;
 
 import java.awt.*;
 
-@ScriptManifest(author = "You", info = "My first script", name = "nmz-bot", version = 0, logo = "")
+@ScriptManifest(author = "You", info = "My first script", name = "nmz-bot 1.1", version = 0, logo = "")
 public class main extends Script {
 	private boolean running;
 	private boolean prayOpen, busy;
@@ -53,7 +53,7 @@ public class main extends Script {
 				running = false;
 				return State.IDLE;
 			}
-			if (!olController.isEmpty() && checkOverloadTimer())
+			else if (!olController.isEmpty() && checkOverloadTimer())
 				return State.PREPARE_OVERLOAD;
 			else if (!absController.isEmpty() && checkAbsorpLevel())
 				return State.GUZZLE_ABSORP;
